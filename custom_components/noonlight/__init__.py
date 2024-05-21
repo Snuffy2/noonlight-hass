@@ -10,7 +10,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (  # Platform,
+from homeassistant.const import (
     CONF_ID,
     CONF_LATITUDE,
     CONF_LONGITUDE,
@@ -51,10 +51,8 @@ from .const import (
     PLATFORMS,
 )
 
-# from homeassistant.helpers.discovery import async_load_platform
-
-TOKEN_CHECK_INTERVAL = timedelta(minutes=15)
 _LOGGER = logging.getLogger(__name__)
+TOKEN_CHECK_INTERVAL = timedelta(minutes=15)
 
 CONFIG_SCHEMA = vol.Schema(
     {
@@ -117,10 +115,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up from a config entry."""
 
-    _LOGGER.debug(f"[init async_setup_entry] entry: {entry.data[DOMAIN]}")
-
-    noonlight_integration = NoonlightIntegration(hass, entry.data[DOMAIN])
-    hass.data[DOMAIN] = noonlight_integration
+    _LOGGER.debug(f"[init async_setup_entry] entry: {entry.data}")
+    noonlight_integration = NoonlightIntegration(hass, entry.data)
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN][entry.entry_id] = noonlight_integration
 
     async def handle_create_alarm_service(call):
         """Create a noonlight alarm from a service"""

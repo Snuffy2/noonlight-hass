@@ -2,8 +2,8 @@
   "title": "Noonlight Alarm",
   "config": {
     "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_account%]",
-      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
+      "already_configured": "Already Configured: Only 1 instance of Noonlight Alarm permitted",
+      "reconfigure_successful": "Reconfigure Successful"
     },
     "step": {
       "user": {
@@ -14,8 +14,11 @@
           "secret": "Noonlight Secret",
           "api_endpoint": "Noonlight API Endpoint",
           "token_endpoint": "Token Endpoint",
-          "latitude": "Latitude",
-          "longitude": "Longitude",
+          "location_mode": "Location Mode"        }
+      },
+      "address": {
+        "title": "Configure the Noonlight Alarm - Address",
+        "data": {
           "address1": "Address",
           "address2": "Address 2",
           "city": "City",
@@ -23,7 +26,14 @@
           "zip": "Zip"
         }
       },
-      "reconfigure": {
+      "latlong": {
+        "title": "Configure the Noonlight Alarm - Latitude/Longitude",
+        "data": {
+          "latitude": "Latitude",
+          "longitude": "Longitude"
+        }
+      },
+      "reconfigure_confirm": {
         "title": "Reconfigure the Noonlight Alarm",
         "data": {
           "name": "Name",
@@ -31,13 +41,27 @@
           "secret": "Noonlight Secret",
           "api_endpoint": "Noonlight API Endpoint",
           "token_endpoint": "Token Endpoint",
-          "latitude": "Latitude",
-          "longitude": "Longitude",
+          "location_mode": "Location Mode"
+        },
+        "data_description": {
+          "id": "Changing the Noonlight ID will create new entities and the old ones will need to be manually Deleted"
+        }
+      },
+      "reconfig_address": {
+        "title": "Reconfigure the Noonlight Alarm - Address",
+        "data": {
           "address1": "Address",
           "address2": "Address 2",
           "city": "City",
           "state": "State",
           "zip": "Zip"
+        }
+      },
+      "reconfig_latlong": {
+        "title": "Reconfigure the Noonlight Alarm - Latitude/Longitude",
+        "data": {
+          "latitude": "Latitude",
+          "longitude": "Longitude"
         }
       }
     }
