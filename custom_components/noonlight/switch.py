@@ -27,7 +27,7 @@ async def async_setup_entry(
     """Setup the sensor platform with a config_entry (config_flow)."""
 
     _LOGGER.debug(f"[aync_setup_entry] noonlight_integration: {hass.data.get(DOMAIN)}")
-    _LOGGER.debug(f"[aync_setup_entry] config_entry: {config_entry}")
+    _LOGGER.debug(f"[aync_setup_entry] config_entry: {config_entry.data}")
 
     noonlight_integration = hass.data.get(DOMAIN).get(config_entry.entry_id)
     noonlight_switch = NoonlightSwitch(noonlight_integration)

@@ -287,13 +287,26 @@ class NoonlightConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._entry = None
 
     async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
+        self, user_input: dict[str, Any] | None = None, yaml_import=False
     ) -> ConfigFlowResult:
         """Handle the initial step."""
 
         self._errors = {}
         if user_input is not None:
             self._data.update(user_input)
+            if yaml_import:
+                self._data.update(
+                    {
+                        CONF_NAME: DEFAULT_NAME,
+                        CONF_LOCATION_MODE: "latlong",
+                        CONF_LATITUDE: self.hass.config.latitude,
+                        CONF_LONGITUDE: self.hass.config.longitude,
+                    }
+                )
+                _LOGGER.debug(f"[async_step_user] self._data: {self._data}")
+                return self.async_create_entry(
+                    title=self._data[CONF_NAME], data=self._data
+                )
             _LOGGER.debug(f"[async_step_user] self._data: {self._data}")
             if self._data.get(CONF_LOCATION_MODE) == "latlong":
                 return await self.async_step_latlong()
@@ -367,8 +380,18 @@ class NoonlightConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Import a config entry from configuration.yaml."""
 
+        if (
+            import_config.get(CONF_ID, None) is None
+            or import_config.get(CONF_SECRET, None) is None
+            or import_config.get(CONF_API_ENDPOINT, None) is None
+            or import_config.get(CONF_TOKEN_ENDPOINT, None) is None
+        ):
+            _LOGGER.error(
+                f"[Noonlight] Invalid YAML Config. Cannot Import: {import_config}"
+            )
+            return
         _LOGGER.debug(f"[async_step_import] import_config: {import_config}")
-        return await self.async_step_user(import_config)
+        return await self.async_step_user(user_input=import_config, yaml_import=True)
 
     async def async_step_reconfigure(
         self, _: dict[str, Any] | None = None
