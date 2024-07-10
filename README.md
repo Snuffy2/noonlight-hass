@@ -4,19 +4,21 @@ This is a fork of the [Noonlight](https://noonlight.com) integration for HomeAss
 
 [Noonlight](https://noonlight.com) connects your smart home to local emergency services to help keep you safe in case of a break-in, fire, or medical emergency.
 
-
-**Noonlight service is currently only available in the United States.**
+### Noonlight service is currently only available in the United States
 
 ## Changes from Official Repository
 
 * Adds address information using the v1 API
+
 * Add unique id to Switch
+
+* Setup via Config Flow
 
 ## How it Works
 
 Noonlight connects to emergency 9-1-1 services in all 50 U.S. states. Backed by a UL-compliant alarm monitoring center and staffed 24/7 with live operators in the United States, Noonlight is standing by to send help to your home at a moment's notice.
 
-When integrated with Home Assistant, a **Noonlight Alarm** switch will appear in your list of entities. When the Noonlight Alarm switch is turned _on_, this will send an emergency signal to Noonlight. You will be contacted by text and voice at the phone number associated with your Noonlight account. If you confirm the emergency with the Noonlight operator, or if you're unable to respond, Noonlight will dispatch local emergency services to your home using the [longitude and latitude coordinates](https://www.home-assistant.io/docs/configuration/basic/#latitude) specified in your Home Assistant configuration.
+When integrated with Home Assistant, a **Noonlight Alarm** switch will appear in your list of entities. When the Noonlight Alarm switch is turned _on_, this will send an emergency signal to Noonlight. You will be contacted by text and voice at the phone number associated with your Noonlight account. If you confirm the emergency with the Noonlight operator, or if you're unable to respond, Noonlight will dispatch local emergency services to your home using the [longitude and latitude coordinates](https://www.home-assistant.io/docs/configuration/basic/#latitude) specified in your Home Assistant configuration or an address you specify in the Noonlight configuration.
 
 Additionally, a new service will be exposed to Home Assistant: `noonlight.create_alarm`, which allows you to explicitly specify the type of emergency service required by the alarm: medical, fire, or police. By default, the switch entity assumes "police".
 
@@ -32,51 +34,39 @@ Setup requires a U.S. based mobile phone number.
 
 1. Click the link below to set up a Noonlight account and authorize Home Assistant to create alarms on your behalf:
 
-    [Connect to Noonlight](https://noonlight.konnected.io/ha/auth)
+    * [Connect to Noonlight](https://noonlight.konnected.io/ha/auth)
 
-3. Copy and paste the resulting YAML snippet into your configuration.yaml and restart Home Assistant
+1. Save the resulting YAML snippet. You will need to enter these details into Home Assistant when adding the integration.
 
 ### Configuration
 
-A `noonlight` section must be present in the `configuration.yaml` file to enable the Noonlight Alarm entity.
+* `Noonlight ID`: A unique identifier assigned to you when you complete the [initial setup steps](#initial-set-up)
 
-**Note:** This configuration snippet will be generated for you automatically to copy and paste when you follow the [initial setup steps](#initial-set-up)
+* `Noonlight Secret`: A secret key associated with your id
 
-```yaml
-# Example configuration.yaml entry
-noonlight:
-  id: NOONLIGHT_ID
-  secret: NOONLIGHT_SECRET
-  api_endpoint: https://api.noonlight.com/platform/v1
-  token_endpoint: https://noonlight.konnected.io/ha/token
-```
+* `Noonlight API Eendpoint`: The Noonlight API endpoint used when creating an alarm
 
-* `id`: A unique identifier assigned to you when you complete the [initial setup steps](#initial-set-up)
-* `secret`: A secret key associated with your id
-* `api_endpoint`: The Noonlight API endpoint used when creating an alarm
-* `token_endpoint`: The OAuth endpoint used to refresh your Noonlight auth token (hosted by [Konnected](https://konnected.io))
+* `Token Endpoint`: The OAuth endpoint used to refresh your Noonlight auth token (hosted by [Konnected](https://konnected.io))
 
-To use the address functionality, you need to add some additional items to the above entry.  If you don't populate these, the base lat/long-based functionality will still be used.
+* `Location Mode`: Choose between Latitude/Longitude or Address
 
-```yaml
-# Example configuration.yaml entry
-noonlight:
-  id: NOONLIGHT_ID
-  secret: NOONLIGHT_SECRET
-  api_endpoint: https://api.noonlight.com/platform/v1
-  token_endpoint: https://noonlight.konnected.io/ha/token
-  address1: '123 Street Address'
-  address2: 'Apt X'
-  city: 'Anytown'
-  state: 'WA'
-  zip: '98100'
-```
+#### If Latitude/Longitude:
 
-* `address1`: Street address
-* `address2`: Apartment, suite, etc. (optional)
-* `city`: City/town name
-* `state`: Two-letter state abbreviation
-* `zip`: Zip code
+* `Latitude`: Will default to Latitude in Home Assistant
+
+* `Longitude`: Will default to Longitude in Home Assistant
+
+#### If Address:
+
+* `Address`: Street address
+
+* `Address 2`: Apartment, suite, etc. (optional)
+
+* `City`: City/town name
+
+* `State`: Two-letter state abbreviation
+
+* `Zip`: Zip code
 
 ## Automation Examples
 
@@ -89,12 +79,13 @@ automation:
   - alias: 'Activate the Noonlight Alarm when the security system is triggered'
     trigger:
       - platform: state
-        entity_id: alarm_control_panel.ha_alarm
+        entity_id: 
+          - alarm_control_panel.ha_alarm
         to: 'triggered'
     action:
-      - service: homeassistant.turn_on
-        entity_id: switch.noonlight_alarm
-
+      - service: switch.turn_on
+        target:
+          entity_id: switch.noonlight_alarm
 ```
 
 ### Notify Noonlight when a smoke detector detects smoke
@@ -104,21 +95,22 @@ automation:
   - alias: 'Activate the Noonlight Alarm when smoke is detected'
     trigger:
       - platform: state
-        entity_id: binary_sensor.smoke_alarm
-        to: 'on'
+        entity_id: 
+          - binary_sensor.smoke_alarm
+        to: 'on'        
     action:
-      - service: homeassistant.turn_on
-        entity_id: switch.noonlight_alarm
-
+      - service: noonlight.create_alarm
+        data:
+          service: fire
 ```
 
 ## Warnings & Disclaimers
 
 <p class='note warning'>
-**Requires an Internet connection!** Home Assistant must have an active internet connection for this to work!
+<b>Requires an Internet connection!</b> Home Assistant must have an active internet connection for this to work!
 </p>
 
-**NO GUARANTEE**
+### NO GUARANTEE
 
 **This integration is provided as-is without warranties of any kind. Using Noonlight with Home Assistant involves multiple service providers and potential points of failure, including (but not limited to) your internet service provider, 3rd party hosting services such as Amazon Web Services, and the Home Assistant software platform.**
 Please read and understand the [Noonlight terms of use](https://noonlight.com/terms), [Konnected terms of use](https://konnected.io/terms) and [Home Assistant terms of Service](https://www.home-assistant.io/tos/), each of which include important limitations of liability and indemnification provisions.
